@@ -1,0 +1,48 @@
+@startuml dentist-bookings
+title Sequence Diagram: Re-route to Bookings
+
+actor "User" as User
+
+participant "<<javaScript>>\n:server" as Server
+participant "<<router>>\n:dentists" as DentistsRouter
+participant "<<router>>\n:bookings" as BookingsRouter
+participant "<<controller>>\n:bookings" as BookingsController
+participant "<<model>>\n:Booking" as BookingModel
+database "<<MongoDB>>\n:bookings" as BookingMongoDB
+
+User -> Server : req.get('/dentists/:dentistId/bookings')
+activate Server
+
+Server -> DentistsRouter : app.use('/dentists', dentists)
+activate DentistsRouter
+
+DentistsRouter -> BookingsRouter : router.use('/:dentistId/bookings', bookingRouter)
+activate BookingsRouter
+
+BookingsRouter -> BookingsController : getBookings(req.params.dentistId)
+activate BookingsController
+
+BookingsController -> BookingModel : find({ dentist: req.params.dentistId })
+activate BookingModel
+
+BookingModel -> BookingMongoDB : BookingSchema
+activate BookingMongoDB
+BookingMongoDB --> BookingModel : bookings
+deactivate BookingMongoDB
+
+BookingModel --> BookingsController : bookings
+deactivate BookingModel
+
+BookingsController --> BookingsRouter : bookings
+deactivate BookingsController
+
+BookingsRouter --> DentistsRouter : bookings
+deactivate BookingsRouter
+
+DentistsRouter --> Server : response
+deactivate DentistsRouter
+
+Server --> User : response
+deactivate Server
+
+@enduml

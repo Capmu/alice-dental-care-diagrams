@@ -1,0 +1,31 @@
+@startuml auth-logout
+title Sequence Diagram: Auth (logout)
+
+actor "User" as User
+
+participant "<<javaScript>>\n:server" as Server
+participant "<<router>>\n:auth" as Router
+participant "<<controller>>\n:auth" as Controller
+
+User -> Server : req.get('/auth/logout')
+activate Server
+
+Server -> Router : app.use('/auth', auth)
+activate Router
+
+Router -> Controller : logout
+activate Controller
+
+note right of Controller
+    Clear cookies
+end note
+Controller --> Router : response 
+deactivate Controller
+
+Router --> Server : response
+deactivate Router
+
+Server --> User : response
+deactivate Server
+
+@enduml

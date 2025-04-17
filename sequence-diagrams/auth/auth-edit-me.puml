@@ -1,0 +1,41 @@
+@startuml auth-edit-me
+title Sequence Diagram: Auth (edit current user)
+
+actor "User" as User
+
+participant "<<javaScript>>\n:server" as Server
+participant "<<router>>\n:auth" as Router
+participant "<<controller>>\n:auth" as Controller
+participant "<<model>>\n:User" as UserModel
+database "<<MongoDB>>\n:users" as UserMongoDB
+
+User -> Server : req.put('/auth/me')
+activate Server
+
+Server -> Router : app.use('/auth', auth)
+activate Router
+
+Router -> Controller : editMe
+activate Controller
+
+Controller -> UserModel : findByIdAndUpdate(req.user.id, fieldsToUpdate)
+activate UserModel
+
+UserModel -> UserMongoDB : UserSchema
+activate UserMongoDB
+UserMongoDB --> UserModel : updatedUser
+deactivate UserMongoDB
+
+UserModel --> Controller : updatedUser
+deactivate UserModel
+
+Controller --> Router : response
+deactivate Controller
+
+Router --> Server : response
+deactivate Router
+
+Server --> User : response
+deactivate Server
+
+@enduml

@@ -1,0 +1,34 @@
+@startuml auth-google-callback
+title Sequence Diagram: Auth (Google OAuth callback)
+
+actor "Google: callback" as Google
+
+participant "<<javaScript>>\n:server" as Server
+participant "<<router>>\n:auth" as Router
+participant "<<middleware>>\n:passport" as PassportMiddleware
+participant "<<controller>>\n:auth" as Controller
+
+Google -> Server : callback to '/auth/google/callback'
+activate Server
+
+Server -> Router : app.use('/auth', auth)
+activate Router
+
+Router -> PassportMiddleware : passport.authenticate("google", { failureRedirect: "/" })
+activate PassportMiddleware
+PassportMiddleware --> Router : req.user
+deactivate PassportMiddleware
+
+Router -> Controller : googleSuccess(req, res)
+activate Controller
+
+Controller --> Router : response
+deactivate Controller
+
+Router --> Server : response
+deactivate Router
+
+Server --> Google : response
+deactivate Server
+
+@enduml

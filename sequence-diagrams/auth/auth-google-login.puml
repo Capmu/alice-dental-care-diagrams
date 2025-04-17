@@ -1,0 +1,27 @@
+@startuml auth-google-login
+title Sequence Diagram: Auth (Google login redirect)
+
+actor "User" as User
+
+participant "<<javaScript>>\n:server" as Server
+participant "<<router>>\n:auth" as Router
+participant "<<middleware>>\n:passport" as PassportMiddleware
+
+User -> Server : req.get('/auth/google')
+activate Server
+
+Server -> Router : app.use('/auth', auth)
+activate Router
+
+Router -> PassportMiddleware : passport.authenticate("google", { scope: ["profile", "email"] })
+activate PassportMiddleware
+PassportMiddleware --> Router : redirect to Google
+deactivate PassportMiddleware
+
+Router --> Server : redirect to Google
+deactivate Router
+
+Server --> User : redirect to Google
+deactivate Server
+
+@enduml

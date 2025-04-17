@@ -1,0 +1,65 @@
+@startuml dentist-delete
+title Sequence Diagram: Manage Dentist (delete)
+
+actor "Admin: delete" as User
+
+participant "<<javaScript>>\n:server" as Server
+participant "<<router>>\n:dentists" as Router
+participant "<<controller>>\n:dentists" as Controller
+participant "<<model>>\n:Dentist" as Model
+participant "<<model>>\n:Booking" as BookingModel
+database "<<MongoDB>>\n:dentist" as MongoDB
+database "<<MongoDB>>\n:booking" as BookingMongoDB
+
+User -> Server : req.delete('/dentists/:id')
+activate Server
+
+Server -> Router : app.use('/dentists', dentists)
+activate Router
+
+Router -> Controller : deleteDentist
+activate Controller
+
+Controller -> Model : findById(req.params.id)
+activate Model
+
+Model -> MongoDB : DentistSchema
+activate MongoDB
+MongoDB --> Model : dentist
+deactivate MongoDB
+
+Model --> Controller : dentist
+deactivate Model
+
+Controller -> BookingModel : deleteMany({ dentist: req.params.id })
+activate BookingModel
+
+BookingModel -> BookingMongoDB : BookingSchema
+activate BookingMongoDB
+BookingMongoDB --> BookingModel : deletedBookings
+deactivate BookingMongoDB
+
+BookingModel --> Controller : deletedBookings
+deactivate BookingModel
+
+Controller -> Model : deleteOne({ _id: req.params.id })
+activate Model
+
+Model -> MongoDB : DentistSchema
+activate MongoDB
+MongoDB --> Model : deletedDentist
+deactivate MongoDB
+
+Model --> Controller : deletedDentist
+deactivate Model
+
+Controller --> Router : {}
+deactivate Controller
+
+Router --> Server : response
+deactivate Router
+
+Server --> User : response
+deactivate Server
+
+@enduml

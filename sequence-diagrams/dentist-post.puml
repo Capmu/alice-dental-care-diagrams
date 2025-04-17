@@ -1,0 +1,46 @@
+@startuml dentist-post
+title Sequence Diagram: Manage Dentist (post)
+
+actor "Admin" as User
+
+participant "<<javaScript>>\n:server" as Server
+participant "<<router>>\n:dentists" as Router
+participant "<<controller>>\n:dentists" as Controller
+participant "<<service>>\n:expertise" as ExpertiseService
+participant "<<model>>\n:Dentist" as Model
+database "<<MongoDB>>\n:dentists" as MongoDB
+
+User -> Server : req.post('/dentists')
+activate Server
+
+Server -> Router : app.use('/dentists', dentists)
+activate Router
+
+Router -> Controller : createDentist
+activate Controller
+
+Controller -> ExpertiseService : verifyExpertises(req.body.expertises)
+activate ExpertiseService
+deactivate ExpertiseService
+
+Controller -> Model : create(req.body)
+activate Model
+
+Model -> MongoDB : DentistSchema
+activate MongoDB
+MongoDB --> Model : dentist
+deactivate MongoDB
+
+Model --> Controller : dentist
+deactivate Model
+
+Controller --> Router : dentist
+deactivate Controller
+
+Router --> Server : response
+deactivate Router
+
+Server --> User : response
+deactivate Server
+
+@enduml

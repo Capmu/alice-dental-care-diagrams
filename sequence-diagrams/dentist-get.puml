@@ -1,0 +1,41 @@
+@startuml dentist-get
+title Sequence Diagram: Manage Dentist (get all)
+
+actor "User" as User
+
+participant "<<javaScript>>\n:server" as Server
+participant "<<router>>\n:dentists" as Router
+participant "<<controller>>\n:dentists" as Controller
+participant "<<model>>\n:Dentist" as Model
+database "<<MongoDB>>\n:dentists" as MongoDB
+
+User -> Server : req.get('/dentists')
+activate Server
+
+Server -> Router : app.use('/dentists', dentists)
+activate Router
+
+Router -> Controller : getDentists
+activate Controller
+
+Controller -> Model : find()
+activate Model
+
+Model -> MongoDB : DentistSchema
+activate MongoDB
+MongoDB --> Model : dentists
+deactivate MongoDB
+
+Model --> Controller : dentists
+deactivate Model
+
+Controller --> Router : dentists
+deactivate Controller
+
+Router --> Server : response
+deactivate Router
+
+Server --> User : response
+deactivate Server
+
+@enduml

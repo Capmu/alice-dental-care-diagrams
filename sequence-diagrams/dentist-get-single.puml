@@ -1,0 +1,41 @@
+@startuml dentist-get-single
+title Sequence Diagram: Manage Dentist (get single)
+
+actor "User" as User
+
+participant "<<javaScript>>\n:server" as Server
+participant "<<router>>\n:dentists" as Router
+participant "<<controller>>\n:dentists" as Controller
+participant "<<model>>\n:Dentist" as Model
+database "<<MongoDB>>\n:dentists" as MongoDB
+
+User -> Server : req.get('/dentists/:id')
+activate Server
+
+Server -> Router : app.use('/dentists', dentists)
+activate Router
+
+Router -> Controller : getDentist
+activate Controller
+
+Controller -> Model : findById(req.params.id)
+activate Model
+
+Model -> MongoDB : DentistSchema
+activate MongoDB
+MongoDB --> Model : dentist
+deactivate MongoDB
+
+Model --> Controller : dentist
+deactivate Model
+
+Controller --> Router : dentist
+deactivate Controller
+
+Router --> Server : response
+deactivate Router
+
+Server --> User : response
+deactivate Server
+
+@enduml

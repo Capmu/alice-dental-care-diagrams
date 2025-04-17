@@ -1,0 +1,46 @@
+@startuml dentist-put
+title Sequence Diagram: Manage Dentist (update)
+
+actor "Admin" as User
+
+participant "<<javaScript>>\n:server" as Server
+participant "<<router>>\n:dentists" as Router
+participant "<<controller>>\n:dentists" as Controller
+participant "<<service>>\n:expertise" as ExpertiseService
+participant "<<model>>\n:Dentist" as Model
+database "<<MongoDB>>\n:dentists" as MongoDB
+
+User -> Server : req.put('/dentists/:id')
+activate Server
+
+Server -> Router : app.use('/dentists', dentists)
+activate Router
+
+Router -> Controller : updateDentist
+activate Controller
+
+Controller -> ExpertiseService : verifyExpertises(req.body.expertises)
+activate ExpertiseService
+deactivate ExpertiseService
+
+Controller -> Model : findByIdAndUpdate(req.params.id, req.body)
+activate Model
+
+Model -> MongoDB : DentistSchema
+activate MongoDB
+MongoDB --> Model : updatedDentist
+deactivate MongoDB
+
+Model --> Controller : updatedDentist
+deactivate Model
+
+Controller --> Router : updatedDentist
+deactivate Controller
+
+Router --> Server : response
+deactivate Router
+
+Server --> User : response
+deactivate Server
+
+@enduml

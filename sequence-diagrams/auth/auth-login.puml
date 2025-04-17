@@ -1,0 +1,43 @@
+@startuml auth-login
+title Sequence Diagram: Auth (login)
+
+actor "User" as User
+
+participant "<<javaScript>>\n:server" as Server
+participant "<<router>>\n:auth" as Router
+participant "<<controller>>\n:auth" as Controller
+participant "<<model>>\n:User" as UserModel
+database "<<MongoDB>>\n:users" as UserMongoDB
+
+User -> Server : req.post('/api/v1/auth/login')
+activate Server
+
+Server -> Router : app.use('/auth', auth)
+activate Router
+
+Router -> Controller : login
+activate Controller
+
+Controller -> UserModel : findOne({ email }).select("+password")
+activate UserModel
+
+UserModel -> UserMongoDB : UserSchema
+activate UserMongoDB
+UserMongoDB --> UserModel : user
+deactivate UserMongoDB
+
+UserModel --> Controller : user
+deactivate UserModel
+
+Controller -> Controller : user.matchPassword(password)
+Controller -> Controller : sendTokenResponse(user)
+Controller --> Router : response
+deactivate Controller
+
+Router --> Server : response
+deactivate Router
+
+Server --> User : response
+deactivate Server
+
+@enduml

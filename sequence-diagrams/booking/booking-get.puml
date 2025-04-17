@@ -1,0 +1,42 @@
+@startuml booking-get
+title Sequence Diagram: Manage Booking (get all)
+
+actor "User" as User
+
+participant "<<javaScript>>\n:server" as Server
+participant "<<router>>\n:bookings" as Router
+participant "<<controller>>\n:bookings" as Controller
+participant "<<model>>\n:Booking" as BookingModel
+database "<<MongoDB>>\n:bookings" as BookingMongoDB
+
+User -> Server : req.get('/bookings')
+activate Server
+
+Server -> Router : app.use('/bookings', bookings)
+activate Router
+
+Router -> Controller : getBookings
+note right of Controller : if not admin
+activate Controller
+
+Controller -> BookingModel : find({ user: req.user.id })
+activate BookingModel
+
+BookingModel -> BookingMongoDB : BookingSchema
+activate BookingMongoDB
+BookingMongoDB --> BookingModel : bookings
+deactivate BookingMongoDB
+
+BookingModel --> Controller : bookings
+deactivate BookingModel
+
+Controller --> Router : bookings
+deactivate Controller
+
+Router --> Server : response
+deactivate Router
+
+Server --> User : response
+deactivate Server
+
+@enduml

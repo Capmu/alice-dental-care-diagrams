@@ -1,0 +1,52 @@
+@startuml booking-delete
+title Sequence Diagram: Manage Booking (delete)
+
+actor "User" as User
+
+participant "<<javaScript>>\n:server" as Server
+participant "<<router>>\n:bookings" as Router
+participant "<<controller>>\n:bookings" as Controller
+participant "<<model>>\n:Booking" as BookingModel
+database "<<MongoDB>>\n:bookings" as BookingMongoDB
+
+User -> Server : req.delete('/bookings/:id')
+activate Server
+
+Server -> Router : app.use('/bookings', bookings)
+activate Router
+
+Router -> Controller : deleteBooking
+activate Controller
+
+Controller -> BookingModel : findById(req.params.id)
+activate BookingModel
+
+BookingModel -> BookingMongoDB : BookingSchema
+activate BookingMongoDB
+BookingMongoDB --> BookingModel : booking
+deactivate BookingMongoDB
+
+BookingModel --> Controller : booking
+deactivate BookingModel
+
+Controller -> BookingModel : deleteOne({ _id: req.params.id })
+activate BookingModel
+
+BookingModel -> BookingMongoDB : BookingSchema
+activate BookingMongoDB
+BookingMongoDB --> BookingModel : {}
+deactivate BookingMongoDB
+
+BookingModel --> Controller : {}
+deactivate BookingModel
+
+Controller --> Router : {}
+deactivate Controller
+
+Router --> Server : response
+deactivate Router
+
+Server --> User : response
+deactivate Server
+
+@enduml
